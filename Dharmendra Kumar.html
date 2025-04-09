@@ -5,29 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Transfer List</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            loadLottieAnimation();
             fetchData();
         });
 
-        function loadLottieAnimation() {
-            lottie.loadAnimation({
-                container: document.getElementById("loadingAnimation"),
-                renderer: "svg",
-                loop: true,
-                autoplay: true,
-                path: "Progress-Bar-(Donut).json" // Ensure this file is served correctly
-            });
-        }
-
         function fetchData() {
-            document.getElementById("loadingAnimation").style.display = "block";
-            fetch("https://script.google.com/macros/s/AKfycbw-2YpJyhFxuYDHQVdxsUDwxQqzpizlNb1WqhjsHlICR8axc7mqnLFiWtA_1udVmldz/exec")
+            fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec")
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("loadingAnimation").style.display = "none";
                     let tableBody = document.getElementById("fileTableBody");
                     tableBody.innerHTML = "";
                     data.forEach(item => {
@@ -36,10 +22,19 @@
                             <td class='p-2 text-center'>${item.party}</td>
                             <td class='p-2 text-center'>${item.uid}</td>
                             <td class='p-2 text-center'>
-                                <button class="done-btn bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded flex items-center justify-center"
+                                <button class="done-btn bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded transition duration-300"
                                     id="btn-${item.uid}" onclick="markAsDone('${item.uid}', this)">
                                     <span class="text">Mark Done</span>
-                                    <div class="loader hidden w-4 h-4 ml-2"></div>
+                                </button>
+                            </td>
+                            <td class='p-2 text-center'>
+                                <input type="text" id="remark-${item.uid}" class="border rounded px-2 py-1 w-full" placeholder="Enter Remark">
+                                <span id="confirm-${item.uid}" class="text-green-600 text-sm font-semibold hidden">✔ Remark Updated</span>
+                            </td>
+                            <td class='p-2 text-center'>
+                                <button class="remark-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300"
+                                    onclick="updateRemark('${item.uid}', this)">
+                                    Update Remark
                                 </button>
                             </td>
                         </tr>`;
@@ -50,52 +45,79 @@
         }
 
         function markAsDone(uid, button) {
-            let loader = button.querySelector(".loader");
-            let text = button.querySelector(".text");
+	    let originalText = button.innerHTML; // Store original button text
+	    button.innerHTML = `<span class="loader"></span>`; // Show loading animation
+	    button.disabled = true; // Prevent multiple clicks
 
-            text.style.display = "none"; // Hide text
-            loader.classList.remove("hidden"); // Show loader
-            
-            fetch("https://script.google.com/macros/s/AKfycbw-2YpJyhFxuYDHQVdxsUDwxQqzpizlNb1WqhjsHlICR8axc7mqnLFiWtA_1udVmldz/exec", {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ uid: uid })
-            })
-            .then(() => {
-                setTimeout(() => { // Simulating processing delay
-                    text.innerText = "✔ Done";
-                    loader.classList.add("hidden"); 
-                    text.style.display = "block"; // Show new text
-                    button.classList.remove("bg-green-500", "hover:bg-green-700");
-                    button.classList.add("bg-gray-500", "cursor-not-allowed");
-                    button.disabled = true;
-                }, 1000);
-            })
-            .catch(error => console.error("Error updating data:", error));
-        }
+	    fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec", {
+	        method: "POST",
+	        mode: "no-cors",  // Keep no-cors
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify({ uid: uid, action: "done" })
+	    });
+	
+	    // Since no-cors prevents reading response, assume success after 2 seconds
+	    setTimeout(() => {
+	        button.innerHTML = `<span class="text">✔ Done</span>`;
+	        button.classList.replace("bg-green-500", "bg-gray-500");
+	        button.classList.add("cursor-not-allowed");
+	        button.disabled = true; // Fully disable button after success
+	    }, 2000);
+	}
+
+
+        function updateRemark(uid, button) {
+	    let remark = document.getElementById(`remark-${uid}`).value;
+	    let confirmMessage = document.getElementById(`confirm-${uid}`);
+
+	    let originalText = button.innerHTML; // Store original button text
+	    button.innerHTML = `<span class="loader"></span>`; // Show loading animation
+	    button.disabled = true; // Prevent multiple clicks
+
+	    fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec", {
+	        method: "POST",
+	        mode: "no-cors",
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify({ uid: uid, action: "remark", remark: remark })
+	    });
+
+	    // Since no-cors prevents response reading, assume success after 2 seconds
+	    setTimeout(() => {
+	        button.innerHTML = `<span class="text">✔ Updated</span>`;
+	        button.classList.replace("bg-blue-500", "bg-gray-500");
+	        button.classList.add("cursor-not-allowed");
+	        button.disabled = true; // Fully disable button after success
+
+	        // Show confirmation message & hide after 2s
+	        confirmMessage.classList.remove("hidden");
+	        setTimeout(() => confirmMessage.classList.add("hidden"), 2000);
+	    }, 2000);
+	}
+
     </script>
+
     <style>
         .loader {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
             border-radius: 50%;
-            width: 14px;
-            height: 14px;
-            animation: spin 1s linear infinite;
+            border-top: 3px solid #3498db;
+            width: 16px;
+            height: 16px;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .opacity-0 {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center py-6">
     <h2 class="text-2xl font-semibold text-gray-800 mb-4">Dharmendra Kumar File List</h2>
-    
-    <!-- Lottie Animation for Loading -->
-    <div id="loadingAnimation" class="mb-4 hidden"></div>
-
     <div class="overflow-x-auto w-full max-w-4xl">
         <table class="w-full bg-white shadow-md rounded-lg">
             <thead>
@@ -104,10 +126,12 @@
                     <th class="p-2 text-center">Party</th>
                     <th class="p-2 text-center">UID</th>
                     <th class="p-2 text-center">Action</th>
+                    <th class="p-2 text-center">Remark</th>
+                    <th class="p-2 text-center">Update</th>
                 </tr>
             </thead>
             <tbody id="fileTableBody" class="bg-white">
-                <tr><td colspan="4" class="p-4 text-center text-gray-500">Loading data...</td></tr>
+                <tr><td colspan="6" class="p-4 text-center text-gray-500">Loading data...</td></tr>
             </tbody>
         </table>
     </div>
