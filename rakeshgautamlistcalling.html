@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered UIDs & Districts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen flex items-center justify-center">
+
+    <div class="max-w-4xl w-full bg-white bg-opacity-90 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+        <h2 class="text-2xl font-extrabold text-gray-800 text-center mb-6">Rakesh Gautam Calling for List</h2>
+        
+        <div class="overflow-hidden rounded-lg shadow-lg">
+            <table class="w-full bg-white border border-gray-200 rounded-lg text-sm">
+                <thead>
+                    <tr class="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-left">
+                        <th class="border px-3 py-2">UID</th>
+                        <th class="border px-3 py-2">District</th>
+                        <th class="border px-3 py-2">Remark</th>
+                        <th class="border px-3 py-2">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable" class="divide-y divide-gray-200">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Success Toast Message -->
+    <div id="successMessage" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+        ✅ Remark updated successfully!
+    </div>
+
+    <!-- Lottie Loader -->
+    <div id="loading" class="hidden fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div id="lottieLoader" class="w-24 h-24"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchData();
+        });
+
+        function fetchData() {
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbwd6NY2Mg3CrzAA3j5jeQyKespiak0YG5JoRLH4zB4K9m7LeMxEgqYVP8zhmod8dF_XhQ/exec"; // Replace with your doGet URL
+
+            fetch(webAppUrl)
+                .then(response => response.json())
+                .then(data => displayData(data))
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function displayData(data) {
+            let tableBody = document.getElementById("dataTable");
+            tableBody.innerHTML = "";
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">No data found</td></tr>';
+                return;
+            }
+
+            data.forEach(row => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="border px-3 py-2 text-gray-800 font-semibold">${row.UID}</td>
+                    <td class="border px-3 py-2 text-gray-600">${row.District}</td>
+                    <td class="border px-3 py-2">
+                        <input type="text" id="remark-${row.UID}" class="border border-gray-300 rounded-lg px-2 py-1 w-full text-sm focus:ring focus:ring-blue-300" placeholder="Enter remark">
+                    </td>
+                    <td class="border px-3 py-2 text-center">
+                        <button id="btn-${row.UID}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-semibold transition-all"
+                                onclick="updateRemark('${row.UID}')">
+                            Update
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateRemark(uid) {
+            const remarkInput = document.getElementById(`remark-${uid}`);
+            const remark = remarkInput.value.trim();
+            if (!remark) {
+                alert("Please enter a remark.");
+                return;
+            }
+
+            const button = document.getElementById(`btn-${uid}`);
+            button.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"></circle>
+                <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>`;
+
+            fetch("https://script.google.com/macros/s/AKfycbwd6NY2Mg3CrzAA3j5jeQyKespiak0YG5JoRLH4zB4K9m7LeMxEgqYVP8zhmod8dF_XhQ/exec", { // Replace with your doPost URL
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ UID: uid, Remark: remark }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.innerHTML = "Update";
+
+                if (data.status === "success") {
+                    document.getElementById("successMessage").classList.remove("hidden");
+                    setTimeout(() => {
+                        document.getElementById("successMessage").classList.add("hidden");
+                    }, 2000);
+                } else {
+                    alert("Failed to update remark.");
+                }
+            })
+            .catch(error => {
+                button.innerHTML = "Update";
+                console.error("Error updating remark:", error);
+            });
+        }
+
+        // Lottie Loader Initialization
+        document.addEventListener("DOMContentLoaded", function () {
+            let animation = lottie.loadAnimation({
+                container: document.getElementById("lottieLoader"),
+                renderer: "svg",
+                loop: true,
+                autoplay: true,
+                path: "https://assets3.lottiefiles.com/packages/lf20_hl3e9ncr.json" // Replace with another if needed
+            });
+
+            document.getElementById("loading").classList.add("hidden");
+        });
+    </script>
+
+</body>
+</html>
