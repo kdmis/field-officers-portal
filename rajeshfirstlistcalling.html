@@ -1,133 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtered UIDs & Districts</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List Calling Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
 </head>
-<body class="bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen flex flex-col">
+  <header class="p-4 bg-white bg-opacity-90 backdrop-blur-md shadow-md">
+	<h2 id="headerTitle" class="text-2xl font-extrabold text-gray-800 text-center"></h2>
+  </header>
+  
+  <!-- Main content area -->
+  <main class="flex-1 p-4">
+    <!-- Container to hold mobile-friendly cards -->
+    <div id="dataContainer" class="space-y-4"></div>
+  </main>
 
-    <div class="max-w-4xl w-full bg-white bg-opacity-90 backdrop-blur-md p-6 rounded-2xl shadow-xl">
-        <h2 class="text-2xl font-extrabold text-gray-800 text-center mb-6">Rajesh I Calling for List</h2>
-        
-        <div class="overflow-hidden rounded-lg shadow-lg">
-            <table class="w-full bg-white border border-gray-200 rounded-lg text-sm">
-                <thead>
-                    <tr class="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-left">
-                        <th class="border px-3 py-2">UID</th>
-                        <th class="border px-3 py-2">District</th>
-                        <th class="border px-3 py-2">Remark</th>
-                        <th class="border px-3 py-2">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTable" class="divide-y divide-gray-200">
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+  <!-- Success Toast Message -->
+  <div id="successMessage" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
+    ✅ Remark updated successfully!
+  </div>
 
-    <!-- Success Toast Message -->
-    <div id="successMessage" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all">
-        ✅ Remark updated successfully!
-    </div>
+  <!-- Lottie Loader -->
+  <div id="loading" class="hidden fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div id="lottieLoader" class="w-24 h-24"></div>
+  </div>
 
-    <!-- Lottie Loader -->
-    <div id="loading" class="hidden fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-        <div id="lottieLoader" class="w-24 h-24"></div>
-    </div>
+  <script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchData();
-        });
+	document.addEventListener("DOMContentLoaded", function () {
+	    // Get the current date
+	    const now = new Date();
 
-        function fetchData() {
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbw5yZqzcX5qjjfjsD-Nh9rQWW6xdqAOm4mb3RJhRoHkuexlKACkRcJMZEW4vq7viymKYQ/exec"; // Replace with your doGet URL
+	    // Format month-year (e.g. Apr-2025)
+	    // Method using toLocaleString:
+	    const options = { month: "short", year: "numeric" };
+	    const monthYear = now.toLocaleString("en-US", options).replace(" ", "-");
 
-            fetch(webAppUrl)
-                .then(response => response.json())
-                .then(data => displayData(data))
-                .catch(error => console.error("Error fetching data:", error));
-        }
+	    // Construct the heading text
+	    const headingText = `${monthYear} List Calling -Rajesh I`;
 
-        function displayData(data) {
-            let tableBody = document.getElementById("dataTable");
-            tableBody.innerHTML = "";
+	    // Set the heading text to the h2 element
+	    document.getElementById("headerTitle").innerText = headingText;
+	});
 
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">No data found</td></tr>';
-                return;
-            }
+    document.addEventListener("DOMContentLoaded", function () {
+      fetchData();
+      
+      // Initialize the Lottie Loader
+      lottie.loadAnimation({
+        container: document.getElementById("lottieLoader"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://assets3.lottiefiles.com/packages/lf20_hl3e9ncr.json"
+      });
+      
+      // Hide the loader after initialization (if you plan to toggle it later)
+      document.getElementById("loading").classList.add("hidden");
+    });
 
-            data.forEach(row => {
-                let tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td class="border px-3 py-2 text-gray-800 font-semibold">${row.UID}</td>
-                    <td class="border px-3 py-2 text-gray-600">${row.District}</td>
-                    <td class="border px-3 py-2">
-                        <input type="text" id="remark-${row.UID}" class="border border-gray-300 rounded-lg px-2 py-1 w-full text-sm focus:ring focus:ring-blue-300" placeholder="Enter remark">
-                    </td>
-                    <td class="border px-3 py-2 text-center">
-                        <button id="btn-${row.UID}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-semibold transition-all"
-                                onclick="updateRemark('${row.UID}')">
-                            Update
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
 
-        function updateRemark(uid) {
-            const remarkInput = document.getElementById(`remark-${uid}`);
-            const remark = remarkInput.value.trim();
-            if (!remark) {
-                alert("Please enter a remark.");
-                return;
-            }
+    function fetchData() {
+      const webAppUrl = "https://script.google.com/macros/s/AKfycbw5yZqzcX5qjjfjsD-Nh9rQWW6xdqAOm4mb3RJhRoHkuexlKACkRcJMZEW4vq7viymKYQ/exec"; // Replace with your doGet URL
 
-            const button = document.getElementById(`btn-${uid}`);
-            button.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"></circle>
-                <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>`;
+      fetch(webAppUrl)
+        .then(response => response.json())
+        .then(data => displayData(data))
+        .catch(error => console.error("Error fetching data:", error));
+    }
 
-            fetch("https://script.google.com/macros/s/AKfycbw5yZqzcX5qjjfjsD-Nh9rQWW6xdqAOm4mb3RJhRoHkuexlKACkRcJMZEW4vq7viymKYQ/exec", { // Replace with your doPost URL
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ UID: uid, Remark: remark }),
-            })
-            .then(response => response.json())
-            .then(() => {
-                button.innerHTML = "Update";
-                } else {
-                    alert("Failed to update remark.");
-                }
-            })
-            .catch(error => {
-                button.innerHTML = "Update";
-                remarkInput.value = "";
-                console.error("Error updating remark:", error);
-            });
-        }
+    function displayData(data) {
+      let container = document.getElementById("dataContainer");
+      container.innerHTML = "";
 
-        // Lottie Loader Initialization
-        document.addEventListener("DOMContentLoaded", function () {
-            let animation = lottie.loadAnimation({
-                container: document.getElementById("lottieLoader"),
-                renderer: "svg",
-                loop: true,
-                autoplay: true,
-                path: "https://assets3.lottiefiles.com/packages/lf20_hl3e9ncr.json" // Replace with another if needed
-            });
+      if (data.length === 0) {
+        container.innerHTML = `<div class="text-center text-gray-500 py-4">No data found</div>`;
+        return;
+      }
 
-            document.getElementById("loading").classList.add("hidden");
-        });
-    </script>
+      data.forEach(row => {
+        // Create a card for each row
+        let card = document.createElement("div");
+        card.className = "bg-white rounded-xl shadow-md p-4";
 
+        card.innerHTML = `
+          <div class="mb-2">
+            <span class="block text-gray-600 font-semibold">UID:</span>
+            <span class="text-gray-800">${row.UID}</span>
+          </div>
+          <div class="mb-2">
+            <span class="block text-gray-600 font-semibold">District:</span>
+            <span class="text-gray-800">${row.District}</span>
+          </div>
+          <div class="mb-2">
+            <span class="block text-gray-600 font-semibold">Prev. Remark:</span>
+            <span class="text-gray-800">${row.LastValue || "N/A"}</span>
+          </div>
+          <div class="mb-2">
+            <input type="text" id="remark-${row.UID}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-300" placeholder="Enter remark">
+          </div>
+          <div>
+            <button id="btn-${row.UID}" onclick="updateRemark('${row.UID}')" class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-semibold transition-colors">
+              Update
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateRemark(uid) {
+      const remarkInput = document.getElementById(`remark-${uid}`);
+      const remark = remarkInput.value.trim();
+      if (!remark) {
+        alert("Please enter a remark.");
+        return;
+      }
+
+      const button = document.getElementById(`btn-${uid}`);
+      // Show a loading spinner inside the button
+      button.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"></circle>
+          <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>`;
+
+      fetch("https://script.google.com/macros/s/AKfycbw5yZqzcX5qjjfjsD-Nh9rQWW6xdqAOm4mb3RJhRoHkuexlKACkRcJMZEW4vq7viymKYQ/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UID: uid, Remark: remark }),
+      })
+      .then(response => {
+          // In no-cors mode, we cannot read the response. So, we assume success.
+          button.innerHTML = "Update";
+          remarkInput.value = "";
+          
+          // Show a success toast message
+          document.getElementById("successMessage").classList.remove("hidden");
+          setTimeout(() => {
+            document.getElementById("successMessage").classList.add("hidden");
+          }, 2000);
+      })
+      .catch(error => {
+          button.innerHTML = "Update";
+          remarkInput.value = "";
+          console.error("Error updating remark:", error);
+      });
+    }
+  </script>
 </body>
 </html>
