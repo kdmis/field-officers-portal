@@ -116,6 +116,7 @@
             })
             .catch(error => {
                 button.innerHTML = "Update";
+                remarkInput.value = "";
                 console.error("Error updating remark:", error);
             });
         }
