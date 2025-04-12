@@ -102,14 +102,8 @@
                 body: JSON.stringify({ UID: uid, Remark: remark }),
             })
             .then(response => response.json())
-            .then(data => {
+            .then(() => {
                 button.innerHTML = "Update";
-
-                if (data.status === "success") {
-                    document.getElementById("successMessage").classList.remove("hidden");
-                    setTimeout(() => {
-                        document.getElementById("successMessage").classList.add("hidden");
-                    }, 2000);
                 } else {
                     alert("Failed to update remark.");
                 }
