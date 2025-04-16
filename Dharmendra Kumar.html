@@ -1,139 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Transfer List</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchData();
-        });
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Transfer List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchMainData();
+      fetchStampsData();
+    });
 
-        function fetchData() {
-            fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec")
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.getElementById("fileTableBody");
-                    tableBody.innerHTML = "";
-                    data.forEach(item => {
-                        let row = `<tr class='border-b'>
-                            <td class='p-2 text-center'>${item.district}</td>
-                            <td class='p-2 text-center'>${item.party}</td>
-                            <td class='p-2 text-center'>${item.uid}</td>
-                            <td class='p-2 text-center'>
-                                <button class="done-btn bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded transition duration-300"
-                                    id="btn-${item.uid}" onclick="markAsDone('${item.uid}', this)">
-                                    <span class="text">Mark Done</span>
-                                </button>
-                            </td>
-                            <td class='p-2 text-center'>
-                                <input type="text" id="remark-${item.uid}" class="border rounded px-2 py-1 w-full" placeholder="Enter Remark">
-                                <span id="confirm-${item.uid}" class="text-green-600 text-sm font-semibold hidden">✔ Remark Updated</span>
-                            </td>
-                            <td class='p-2 text-center'>
-                                <button class="remark-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300"
-                                    onclick="updateRemark('${item.uid}', this)">
-                                    Update Remark
-                                </button>
-                            </td>
-                        </tr>`;
-                        tableBody.innerHTML += row;
-                    });
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        }
+    function fetchMainData() {
+      fetch("https://script.google.com/macros/s/AKfycbwsgrAbC3l3tP-y9ksCdsKPiB3SHo1xPRaJm3IeV1oXO1V7NYzf_FDAoeInRwKOfzFV/exec")
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById("cardContainer");
+          container.innerHTML = "";
+          data.forEach(item => {
+            const card = `
+              <div class="bg-white shadow-md rounded-xl p-4 mb-4 space-y-3 transition-all hover:shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+                  <div>
+                    <p class="text-gray-700 font-semibold text-sm">District: <span class="font-normal">${item.district}</span></p>
+                    <p class="text-gray-700 font-semibold text-sm">Party: <span class="font-normal">${item.party}</span></p>
+                    <p class="text-gray-700 font-semibold text-sm">UID: <span class="font-normal">${item.uid}</span></p>
+                  </div>
+                  <div class="flex flex-wrap gap-2 sm:justify-end">
+                    <button id="btn-${item.uid}" onclick="markAsDone('${item.uid}', this)"
+                      class="done-btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-xs font-medium transition-all">
+                      Mark Done
+                    </button>
+                    <button onclick="updateRemark('${item.uid}', this)"
+                      class="remark-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs font-medium transition-all">
+                      Update Remark
+                    </button>
+                    <button onclick="cancelAction('${item.uid}', this)"
+                      class="cancel-btn bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-xs font-medium transition-all">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <input id="remark-${item.uid}" type="text" class="w-full border px-3 py-2 rounded-md text-sm" placeholder="Enter Remark" />
+                  <span id="confirm-${item.uid}" class="text-green-600 text-sm font-semibold hidden mt-1 inline-block">✔ Remark Updated</span>
+                </div>
+              </div>`;
+            container.innerHTML += card;
+          });
+        })
+        .catch(error => console.error("Error fetching main data:", error));
+    }
 
-        function markAsDone(uid, button) {
-	    let originalText = button.innerHTML; // Store original button text
-	    button.innerHTML = `<span class="loader"></span>`; // Show loading animation
-	    button.disabled = true; // Prevent multiple clicks
-
-	    fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec", {
-	        method: "POST",
-	        mode: "no-cors",  // Keep no-cors
-	        headers: { "Content-Type": "application/json" },
-	        body: JSON.stringify({ uid: uid, action: "done" })
-	    });
-	
-	    // Since no-cors prevents reading response, assume success after 2 seconds
-	    setTimeout(() => {
-	        button.innerHTML = `<span class="text">✔ Done</span>`;
-	        button.classList.replace("bg-green-500", "bg-gray-500");
-	        button.classList.add("cursor-not-allowed");
-	        button.disabled = true; // Fully disable button after success
-	    }, 2000);
-	}
-
-
-        function updateRemark(uid, button) {
-	    let remark = document.getElementById(`remark-${uid}`).value;
-	    let confirmMessage = document.getElementById(`confirm-${uid}`);
-
-	    let originalText = button.innerHTML; // Store original button text
-	    button.innerHTML = `<span class="loader"></span>`; // Show loading animation
-	    button.disabled = true; // Prevent multiple clicks
-
-	    fetch("https://script.google.com/macros/s/AKfycbze3E381yBJh6B246QFb07tDFlQ3JJYiU4Yyho499lu6q2eGRg-_jPTVxtA2kwyR7CV/exec", {
-	        method: "POST",
-	        mode: "no-cors",
-	        headers: { "Content-Type": "application/json" },
-	        body: JSON.stringify({ uid: uid, action: "remark", remark: remark })
-	    });
-
-	    // Since no-cors prevents response reading, assume success after 2 seconds
-	    setTimeout(() => {
-	        button.innerHTML = `<span class="text">✔ Updated</span>`;
-	        button.classList.replace("bg-blue-500", "bg-gray-500");
-	        button.classList.add("cursor-not-allowed");
-	        button.disabled = true; // Fully disable button after success
-
-	        // Show confirmation message & hide after 2s
-	        confirmMessage.classList.remove("hidden");
-	        setTimeout(() => confirmMessage.classList.add("hidden"), 2000);
-	    }, 2000);
-	}
-
-    </script>
-
-    <style>
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid #3498db;
-            width: 16px;
-            height: 16px;
-            animation: spin 0.6s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .opacity-0 {
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 flex flex-col items-center py-6">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Dharmendra Kumar File List</h2>
-    <div class="overflow-x-auto w-full max-w-4xl">
-        <table class="w-full bg-white shadow-md rounded-lg">
-            <thead>
-                <tr class="bg-gray-300">
-                    <th class="p-2 text-center">District</th>
-                    <th class="p-2 text-center">Party</th>
-                    <th class="p-2 text-center">UID</th>
-                    <th class="p-2 text-center">Action</th>
-                    <th class="p-2 text-center">Remark</th>
-                    <th class="p-2 text-center">Update</th>
-                </tr>
+    function fetchStampsData() {
+      fetch("https://script.google.com/macros/s/AKfycbw2gYLKIhKTZFxsJyl_g8IuSrYJQ9znTvWzU6_a6Tyud7N8DjeB3DxaKhpLBDlXUAeSFw/exec?agent=Dharmendra")
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("stampsTable");
+          let html = `
+            <thead class="bg-gray-200 text-xs">
+              <tr>
+                <th class="px-2 py-1 border">District</th>
+                <th class="px-2 py-1 border">Party</th>
+                <th class="px-2 py-1 border">Stamps</th>
+              </tr>
             </thead>
-            <tbody id="fileTableBody" class="bg-white">
-                <tr><td colspan="6" class="p-4 text-center text-gray-500">Loading data...</td></tr>
-            </tbody>
-        </table>
+            <tbody>`;
+          data.forEach(row => {
+            html += `
+              <tr class="text-xs text-center">
+                <td class="px-2 py-1 border">${row.district}</td>
+                <td class="px-2 py-1 border">${row.name}</td>
+                <td class="px-2 py-1 border">${row.type}</td>
+              </tr>`;
+          });
+          html += "</tbody>";
+          table.innerHTML = html;
+        })
+        .catch(err => console.error("Error fetching stamp data:", err));
+    }
+
+    function markAsDone(uid, button) {
+      button.innerHTML = `<span class="loader"></span>`;
+      button.disabled = true;
+
+      fetch("https://script.google.com/macros/s/AKfycbwsgrAbC3l3tP-y9ksCdsKPiB3SHo1xPRaJm3IeV1oXO1V7NYzf_FDAoeInRwKOfzFV/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: uid, action: "done" })
+      });
+
+      setTimeout(() => {
+        button.innerHTML = "✔ Done";
+        button.classList.replace("bg-green-600", "bg-gray-400");
+        button.classList.add("cursor-not-allowed");
+        button.disabled = true;
+      }, 2000);
+    }
+
+    function updateRemark(uid, button) {
+      const remark = document.getElementById(`remark-${uid}`).value;
+      const confirmMessage = document.getElementById(`confirm-${uid}`);
+      button.innerHTML = `<span class="loader"></span>`;
+      button.disabled = true;
+
+      fetch("https://script.google.com/macros/s/AKfycbwsgrAbC3l3tP-y9ksCdsKPiB3SHo1xPRaJm3IeV1oXO1V7NYzf_FDAoeInRwKOfzFV/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: uid, action: "remark", remark: remark })
+      });
+
+      setTimeout(() => {
+        button.innerHTML = "✔ Updated";
+        button.classList.replace("bg-blue-600", "bg-gray-400");
+        button.classList.add("cursor-not-allowed");
+        button.disabled = true;
+        confirmMessage.classList.remove("hidden");
+        setTimeout(() => confirmMessage.classList.add("hidden"), 2000);
+      }, 2000);
+    }
+
+    function cancelAction(uid, button) {
+      button.innerHTML = `<span class="loader"></span>`;
+      button.disabled = true;
+
+      fetch("https://script.google.com/macros/s/AKfycbwsgrAbC3l3tP-y9ksCdsKPiB3SHo1xPRaJm3IeV1oXO1V7NYzf_FDAoeInRwKOfzFV/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: uid, action: "cancel" })
+      });
+
+      setTimeout(() => {
+        button.innerHTML = "✔ Cancelled";
+        button.classList.replace("bg-red-600", "bg-gray-400");
+        button.classList.add("cursor-not-allowed");
+        button.disabled = true;
+      }, 2000);
+    }
+  </script>
+
+  <style>
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 3px solid #3498db;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen py-6 px-4">
+  <div class="mt-12">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">📦 Ye Stamps Office Me Bhejne Hain</h2>
+    <div class="overflow-x-auto">
+      <table id="stampsTable" class="min-w-full bg-white rounded-lg overflow-hidden shadow text-xs text-gray-700">
+      </table>
     </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📂 Dharmendra File List</h1>
+    <div id="cardContainer">
+      <p class="text-center text-gray-500">Loading data...</p>
+    </div>
+  </div>
 </body>
+
 </html>
