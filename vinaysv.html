@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meter Reading Submission</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    .select2-container--default .select2-selection--single {
+      height: 42px;
+      padding: 6px 12px;
+      border-radius: 0.375rem;
+      border-color: #d1d5db;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 42px;
+    }
+    
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #3b82f6;
+    }
+    
+    .file-upload {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-upload input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      outline: none;
+      cursor: pointer;
+      display: block;
+    }
+    
+    /* Custom animation for toast */
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    
+    @keyframes slideOutRight {
+      from { transform: translateX(0); }
+      to { transform: translateX(100%); }
+    }
+    
+    .slide-in {
+      animation: slideInRight 0.3s forwards;
+    }
+    
+    .slide-out {
+      animation: slideOutRight 0.3s forwards;
+    }
+    
+    /* Pulse animation for submit button */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    
+    .pulse-btn:hover {
+      animation: pulse 1.5s infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-4 pt-8">
+
+  <div class="max-w-4xl w-full flex flex-col items-center">
+    <!-- Header Section -->
+    <div class="w-full mb-6 flex items-center justify-center">
+      <div id="lottie" class="w-20 h-20"></div>
+      <h1 class="text-3xl font-bold text-blue-700 ml-3">Meter Reading Portal</h1>
+    </div>
+
+    <!-- Info/Status Card -->
+    <div class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg mb-6 overflow-hidden">
+      <div class="p-5 text-white">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="flex flex-col mb-3 md:mb-0">
+            <span class="text-blue-100 text-sm">District</span>
+            <span id="district" class="text-xl font-semibold"></span>
+          </div>
+          <div class="border-r border-blue-300 h-10 hidden md:block"></div>
+          <div class="flex flex-col">
+            <span class="text-blue-100 text-sm">Block</span>
+            <span id="block" class="text-xl font-semibold"></span>
+          </div>
+          <div class="border-r border-blue-300 h-10 hidden md:block"></div>
+          <div class="mt-3 md:mt-0">
+            <span id="status" class="text-center font-medium text-white"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-xl shadow-xl w-full overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+      <!-- Form Header -->
+      <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-5 border-b border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-800">Meter Reading Form</h2>
+        <p class="text-gray-600 text-sm mt-1">Please fill all the required fields</p>
+      </div>
+
+      <!-- Form Body -->
+      <div class="p-6">
+        <!-- Basic Fields Section -->
+        <div class="basicFields bg-blue-50 p-5 rounded-lg mb-6">
+          <h3 class="text-lg font-medium text-blue-800 mb-4">Basic Information</h3>
+          
+          <div class="mb-4">
+            <label for="bikeReading" class="block font-medium mb-1 text-gray-700">Bike Reading:</label>
+            <input type="number" id="bikeReading" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="mb-4">
+              <label for="file" class="block font-medium mb-1 text-gray-700">Meter Reading Proof:</label>
+              <div class="file-upload">
+                <div class="w-full p-3 text-center border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer transition-all">
+                  <span class="text-gray-500 file-name">Choose file</span>
+                  <input type="file" id="file" class="w-full" accept="*/*" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="file1" class="block font-medium mb-1 text-gray-700">Selfie with School:</label>
+              <div class="file-upload">
+                <div class="w-full p-3 text-center border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer transition-all">
+                  <span class="text-gray-500 file-name">Choose file</span>
+                  <input type="file" id="file1" class="w-full" accept="*/*" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="file2" class="block font-medium mb-1 text-gray-700">School Photo:</label>
+              <div class="file-upload">
+                <div class="w-full p-3 text-center border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer transition-all">
+                  <span class="text-gray-500 file-name">Choose file</span>
+                  <input type="file" id="file2" class="w-full" accept="*/*" required />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- School Section -->
+        <div class="bg-indigo-50 p-5 rounded-lg mb-6">
+          <h3 class="text-lg font-medium text-indigo-800 mb-4">School Information</h3>
+          
+          <div class="mb-4">
+            <label for="school" class="block font-medium mb-1 text-gray-700">School Name:</label>
+            <select id="school" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all select2-with-tags" required></select>
+            <p class="text-xs text-gray-500 mt-1">You can search for a school or type a new school name if it's not in the list</p>
+          </div>
+
+          <!-- Dynamic Block Selection (appears only for custom school entries) -->
+          <div id="blockSelectionContainer" class="mb-4 hidden">
+            <label for="blockSelection" class="block font-medium mb-1 text-gray-700">Select Block:</label>
+            <select id="blockSelection" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all select2" required></select>
+            <p class="text-xs text-gray-500 mt-1">Please select the block for this school</p>
+          </div>
+        </div>
+
+        <!-- Contacts Section -->
+        <div class="bg-green-50 p-5 rounded-lg mb-6">
+          <h3 class="text-lg font-medium text-green-800 mb-4 flex justify-between items-center">
+            <span>Contacts</span>
+            <button type="button" id="addContact" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Add Contact
+            </button>
+          </h3>
+          
+          <div id="contactGrid" class="space-y-3"></div>
+          <p class="text-xs text-gray-500 mt-3 bg-yellow-100 p-2 rounded-lg">School se bahar nikalte time contacts upload karne hain "tab hi <b>Add Contact</b> button pr click karna hai"</p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button id="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all pulse-btn font-medium text-lg flex items-center mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Submit Reading
+          </button>
+        </div>
+        
+        <!-- Debug Info -->
+        <div id="debugInfo" class="mt-6 text-xs text-gray-500 border-t pt-3 hidden">
+          <h3 class="font-semibold">Debug Info:</h3>
+          <div id="debugContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Message -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg opacity-0 z-50 flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    Data submitted successfully!
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-md w-full">
+      <div id="loadingAnimation" class="w-24 h-24 mx-auto mb-4"></div>
+      <p id="loadingText" class="text-xl font-medium text-gray-700">Submitting data...</p>
+      <div class="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+        <div class="loading-bar bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Overlay -->
+  <div id="successOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-md w-full">
+      <div id="successAnimation" class="w-32 h-32 mx-auto mb-4"></div>
+      <p class="text-2xl font-bold text-green-600 mb-2">Submission Successful!</p>
+      <p class="text-gray-600 mb-6">Your meter reading has been recorded.</p>
+      <button id="closeSuccess" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all font-medium">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    const agent = "VINAY";
+    const API_URL = "https://script.google.com/macros/s/AKfycby13Q8sggAsj2JA0rDzeyVK9NLoqxWZZKehP_CrBsl1jT1vNeaYx6RTMbtX86OMIhLl/exec";
+
+    const districtEl = document.getElementById('district');
+    const blockEl = document.getElementById('block');
+    const schoolSelect = document.getElementById('school');
+    const blockSelectionContainer = document.getElementById('blockSelectionContainer');
+    const blockSelection = document.getElementById('blockSelection');
+    const contactGrid = document.getElementById('contactGrid');
+    const statusEl = document.getElementById('status');
+    const toast = document.getElementById('toast');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const successOverlay = document.getElementById('successOverlay');
+    const closeSuccess = document.getElementById('closeSuccess');
+    const debugInfo = document.getElementById('debugInfo');
+    const debugContent = document.getElementById('debugContent');
+
+    let district = "";
+    let block = "";
+    let blocks = []; // To store the blocks array from doGet response
+    let loadingAnimation;
+    let successAnimation;
+    let isCustomSchool = false;
+
+    // For development/debugging
+    const isDebugMode = false;
+
+    // Update file input displays
+    document.querySelectorAll('input[type="file"]').forEach(fileInput => {
+      fileInput.addEventListener('change', function() {
+        let fileName = this.value.split('\\').pop();
+        if (fileName) {
+          let fileNameDisplay = this.parentElement.querySelector('.file-name');
+          if (fileNameDisplay) {
+            fileNameDisplay.textContent = fileName;
+            fileNameDisplay.classList.add('text-blue-600');
+          }
+        }
+      });
+    });
+
+    function showDebugInfo(info) {
+      if (isDebugMode) {
+        debugInfo.classList.remove('hidden');
+        const infoHtml = typeof info === 'object' ? JSON.stringify(info, null, 2) : info;
+        debugContent.innerHTML = `<pre>${infoHtml}</pre>`;
+      }
+    }
+
+    // Initialize select2 for searchable dropdowns
+    $(document).ready(function() {
+      $('.select2').select2({
+        placeholder: "Select a block...",
+        allowClear: true,
+        dropdownParent: $('#blockSelectionContainer')
+      });
+      
+      $('.select2-with-tags').select2({
+        tags: true, // Allow users to create new options
+        placeholder: "Search for a school or type a new name...",
+        allowClear: true,
+        createTag: function (params) {
+          return {
+            id: params.term,
+            text: params.term,
+            newTag: true
+          }
+        }
+      });
+
+      // Listen for school selection/change events
+      $('#school').on('change', function() {
+        const selectedOption = $(this).find('option:selected');
+        const selectedText = selectedOption.text();
+        const initialOptions = Array.from(schoolSelect.querySelectorAll('option:not([data-select2-tag="true"])'))
+                                .map(opt => opt.textContent);
+        
+        // Check if the selected option is a custom entry
+        isCustomSchool = !initialOptions.includes(selectedText) && selectedText !== "";
+        
+        if (isCustomSchool) {
+          // Show block selection
+          blockSelectionContainer.classList.remove('hidden');
+          $('#blockSelection').prop('required', true);
+        } else {
+          // Hide block selection for predefined schools
+          blockSelectionContainer.classList.add('hidden');
+          $('#blockSelection').prop('required', false);
+        }
+      });
+    });
+
+    // Main animation
+    lottie.loadAnimation({
+      container: document.getElementById('lottie'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'https://lottie.host/05453f61-04a6-4c20-9ded-4aa8c362b49b/oBZXVIzXgq.json'
+    });
+
+    // Loading animation
+    loadingAnimation = lottie.loadAnimation({
+      container: document.getElementById('loadingAnimation'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: false,
+      path: 'https://assets3.lottiefiles.com/packages/lf20_usmfx6bp.json'
+    });
+
+    // Success animation
+    successAnimation = lottie.loadAnimation({
+      container: document.getElementById('successAnimation'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      path: 'https://assets9.lottiefiles.com/packages/lf20_ky24lmuj.json'
+    });
+
+    // Fetch initial data
+    fetch(`${API_URL}?agent=${agent}`)
+      .then(res => res.json())
+      .then(data => {
+        // Show debug information
+        showDebugInfo(data);
+        
+        if (data.status === 'success') {
+          district = data.district;
+          block = data.block;
+          blocks = data.blocks || []; // Store blocks array
+          
+          districtEl.textContent = district;
+          blockEl.textContent = block;
+
+          // Show success toast
+          showToast("Data loaded successfully", "success");
+
+          // Populate schools dropdown
+          schoolSelect.innerHTML = '<option value=""></option>';
+          data.schools.forEach(school => {
+            const option = document.createElement('option');
+            option.value = school;
+            option.textContent = school;
+            schoolSelect.appendChild(option);
+          });
+          
+          // Populate blocks dropdown
+          blockSelection.innerHTML = '<option value=""></option>';
+          if (blocks && blocks.length > 0) {
+            blocks.forEach(blockName => {
+              const option = document.createElement('option');
+              option.value = blockName;
+              option.textContent = blockName;
+              blockSelection.appendChild(option);
+            });
+          } else {
+            // Fallback if blocks array is empty
+            const option = document.createElement('option');
+            option.value = block;
+            option.textContent = block;
+            blockSelection.appendChild(option);
+          }
+
+          // Refresh select2 widgets after adding options
+          $('.select2-with-tags').trigger('change');
+          $('.select2').trigger('change');
+        } else {
+          statusEl.textContent = data.message;
+          statusEl.classList.add('text-red-100', 'bg-red-600', 'p-2', 'rounded');
+          showToast("Failed to load data", "error");
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        statusEl.textContent = 'Failed to load initial data. Please refresh the page.';
+        statusEl.classList.add('text-red-100', 'bg-red-600', 'p-2', 'rounded');
+        showToast("Network error", "error");
+      });
+
+	const basicFields = document.querySelector('.basicFields');
+	const addContactBtn = document.getElementById('addContact');
+
+	function toggleBasicFields() {
+	  const contactRows = contactGrid.querySelectorAll('.grid-cols-5');
+
+	  if (contactRows.length > 0) {
+	    // Hide and remove required
+	    basicFields.classList.add('hidden');
+	    document.getElementById('bikeReading').removeAttribute('required');
+	    document.getElementById('file').removeAttribute('required');
+	    document.getElementById('file1').removeAttribute('required');
+	    document.getElementById('file2').removeAttribute('required');
+	  } else {
+	    // Show and re-add required
+	    basicFields.classList.remove('hidden');
+	    document.getElementById('bikeReading').setAttribute('required', '');
+	    document.getElementById('file').setAttribute('required', '');
+	    document.getElementById('file1').setAttribute('required', '');
+	    document.getElementById('file2').setAttribute('required', '');
+	  }
+	}
+
+	function addContactRow(name = '', contact = '', designation = '', remark = '') {
+	  const div = document.createElement('div');
+	  div.className = 'grid grid-cols-5 gap-2 items-center';
+
+	  div.innerHTML = `
+	    <input type="text" placeholder="Name" value="${name}" class="p-2 border rounded" />
+	    <input type="text" placeholder="Contact" inputmode="numeric" value="${contact}" class="p-2 border rounded" required maxlength="10" pattern="\d{10}" oninput="this.value = this.value.replace(/\D/g, '').slice(0,10)"/>
+	    <input type="text" placeholder="Designation" value="${designation}" class="p-2 border rounded" />
+	    <input type="text" placeholder="Remark" value="${remark}" class="p-2 border rounded" />
+	    <button type="button" class="text-red-500 hover:underline remove-btn">Remove</button>
+	  `;
+
+	  contactGrid.appendChild(div);
+	  toggleBasicFields(); // check if we should hide basicFields
+
+	  div.querySelector('.remove-btn').addEventListener('click', () => {
+	    contactGrid.removeChild(div);
+	    toggleBasicFields(); // re-check when row removed
+	  });
+	}
+
+	// Attach to Add Contact button
+	addContactBtn.addEventListener('click', () => addContactRow());
+
+
+
+    // Initial one row
+    closeSuccess.addEventListener('click', () => {
+      successOverlay.classList.add('hidden');
+    });
+
+// Find the existing submit event listener and replace it with this version:
+document.getElementById('submit').addEventListener('click', async () => {
+  const school = schoolSelect.value;
+  const selectedBlock = isCustomSchool ? blockSelection.value : block;
+  const bikeReading = document.getElementById('bikeReading').value;
+  const file = document.getElementById('file').files[0];
+  const file1 = document.getElementById('file1').files[0];
+  const file2 = document.getElementById('file2').files[0];
+  const contactRows = contactGrid.querySelectorAll('.grid-cols-5');
+  const hasContacts = contactRows.length > 0;
+
+  // Basic validation
+  if (!school) {
+    statusEl.textContent = "Please select or enter a school.";
+    statusEl.classList.add("text-red-600");
+    return;
+  }
+
+  // Additional validation for custom school entries
+  if (isCustomSchool && !selectedBlock) {
+    statusEl.textContent = "Please select a block for the custom school.";
+    statusEl.classList.add("text-red-600");
+    return;
+  }
+
+  // Validate contacts or basic fields
+  if (hasContacts) {
+    // Check if at least one contact has required fields filled
+    const validContacts = Array.from(contactRows).some(row => {
+      const inputs = row.querySelectorAll('input');
+      return inputs[1].value.trim() !== ''; // Contact number is required
+    });
+    
+    if (!validContacts) {
+      statusEl.textContent = "Please enter at least one contact with a phone number.";
+      statusEl.classList.add("text-red-600");
+      return;
+    }
+  } else {
+    // If no contacts, validate basic fields
+    if (!bikeReading || !file || !file1) {
+      statusEl.textContent = "Please fill all required fields.";
+      statusEl.classList.add("text-red-600");
+      return;
+    }
+  }
+
+  // Show loading overlay and play animation
+  loadingOverlay.classList.remove('hidden');
+  loadingAnimation.play();
+
+  const contacts = Array.from(contactGrid.children).map(row => {
+    const inputs = row.querySelectorAll('input');
+    return {
+      name: inputs[0].value,
+      contact: inputs[1].value,
+      designation: inputs[2].value,
+      remark: inputs[3].value
+    };
+  });
+
+  let fileBase64 = '', fileType = '', fileName = '';
+  let fileBase641 = '', fileType1 = '', fileName1 = '';
+  let fileBase642 = '', fileType2 = '', fileName2 = '';
+
+  // Function to read file and return a promise
+  function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) return resolve(null);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        resolve({ base64, type: file.type, name: file.name });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFiles() {
+    const fileData = await readFileAsBase64(file);
+    const fileData1 = await readFileAsBase64(file1);
+    const fileData2 = await readFileAsBase64(file2);
+
+    if (fileData) {
+      fileBase64 = fileData.base64;
+      fileType = fileData.type;
+      fileName = fileData.name;
+    }
+  
+    if (fileData1) {
+      fileBase641 = fileData1.base64;
+      fileType1 = fileData1.type;
+      fileName1 = fileData1.name;
+    }
+
+    if (fileData2) {
+      fileBase642 = fileData2.base64;
+      fileType2 = fileData2.type;
+      fileName2 = fileData2.name;
+    }
+
+    await sendData();
+  }
+
+  handleFiles();
+
+  async function sendData() {
+    const payload = {
+      agent,
+      district,
+      block: selectedBlock, // Use either the default block or the selected one
+      school,
+      bikeReading,
+      contacts,
+      fileBase64,
+      fileType,
+      fileName,
+      fileBase641,
+      fileType1,
+      fileName1,
+      fileBase642,
+      fileType2,
+      fileName2,
+      manualSchool: isCustomSchool ? school : '',
+      manualBlock: isCustomSchool ? selectedBlock : ''
+    };
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // Hide loading overlay
+      loadingOverlay.classList.add('hidden');
+      loadingAnimation.stop();
+      
+      // Show success overlay
+      successOverlay.classList.remove('hidden');
+      successAnimation.goToAndPlay(0);
+      
+
+      // Reset form
+      $('.select2-with-tags').val(null).trigger('change');
+      $('.select2').val(null).trigger('change');
+      document.getElementById('bikeReading').value = '';
+      contactGrid.innerHTML = '';
+      addContactRow();
+      document.getElementById('file').value = '';
+      document.getElementById('file1').value = '';
+      document.getElementById('file2').value = '';
+      blockSelectionContainer.classList.add('hidden');
+      isCustomSchool = false;
+    } catch (error) {
+      console.error('Submission error:', error);
+      loadingOverlay.classList.add('hidden');
+      loadingAnimation.stop();
+      statusEl.textContent = 'Failed to submit. Please try again.';
+      statusEl.classList.add('text-red-600');
+    }
+  }
+});
+
+    function showToast() {
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
+
+
+  </script>
+</body>
+</html>
