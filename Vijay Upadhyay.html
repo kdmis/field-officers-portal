@@ -10,6 +10,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       fetchMainData();
       fetchStampsData();
+      fetchDocumentsData();
     });
 
     function fetchMainData() {
@@ -60,26 +61,120 @@
         .then(data => {
           const table = document.getElementById("stampsTable");
           let html = `
-            <thead class="bg-gray-200 text-xs">
+            <thead class="bg-gray-100 text-xs">
               <tr>
-                <th class="px-2 py-1 border">District</th>
-                <th class="px-2 py-1 border">Party</th>
-                <th class="px-2 py-1 border">Stamps</th>
+                <th class="px-1 py-1 border border-gray-300">District</th>
+                <th class="px-1 py-1 border border-gray-300">Party</th>
+                <th class="px-1 py-1 border border-gray-300">Stamps</th>
               </tr>
             </thead>
             <tbody>`;
           data.forEach(row => {
             html += `
               <tr class="text-xs text-center">
-                <td class="px-2 py-1 border">${row.district}</td>
-                <td class="px-2 py-1 border">${row.name}</td>
-                <td class="px-2 py-1 border">${row.type}</td>
+                <td class="px-1 py-1 border border-gray-300">${row.district}</td>
+                <td class="px-1 py-1 border border-gray-300">${row.name}</td>
+                <td class="px-1 py-1 border border-gray-300">${row.type}</td>
               </tr>`;
           });
           html += "</tbody>";
           table.innerHTML = html;
         })
         .catch(err => console.error("Error fetching stamp data:", err));
+    }
+
+    function fetchDocumentsData() {
+      fetch("https://script.google.com/macros/s/AKfycbyGikJyQZyfvE8qCT83KvnmKZ3IxpCdUoW498miNi-rcKi3dntQIKZ1_V9O91rEvyma0w/exec?agent=Vijay%20Upadhyay")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("documentsContainer");
+          container.innerHTML = "";
+          
+          // Create header similar to the screenshot
+          const header = document.createElement("div");
+          header.className = "flex items-center justify-center mb-2";
+          header.innerHTML = `<h2 class="text-sm font-bold text-gray-800">📄 Documents Required</h2>`;
+          container.appendChild(header);
+          
+          // Create table header
+          const tableHeader = document.createElement("div");
+          tableHeader.className = "bg-white rounded border border-gray-300";
+          tableHeader.innerHTML = `
+            <div class="grid grid-cols-6 text-xs font-medium bg-gray-50 border-b border-gray-300">
+              <div class="p-1 border-r border-gray-300">Party</div>
+              <div class="p-1 border-r border-gray-300">District</div>
+              <div class="p-1 border-r border-gray-300">Block</div>
+              <div class="p-1 border-r border-gray-300">School</div>
+              <div class="p-1 border-r border-gray-300">Amount</div>
+              <div class="p-1">Docs</div>
+            </div>
+          `;
+          container.appendChild(tableHeader);
+          
+          // Create collapsible card container
+          const cardContainer = document.createElement("div");
+          cardContainer.className = "bg-white rounded-b border-x border-b border-gray-300";
+          
+          data.forEach((row, index) => {
+            const card = document.createElement("div");
+            card.className = "border-t border-gray-300 first:border-t-0";
+            
+            // Create card header (always visible)
+            const cardHeader = document.createElement("div");
+            cardHeader.className = "grid grid-cols-6 text-xs cursor-pointer hover:bg-gray-50";
+            cardHeader.onclick = () => toggleCard(`card-content-${index}`);
+            cardHeader.innerHTML = `
+              <div class="p-1 border-r border-gray-300 font-medium text-blue-700">${row.party}</div>
+              <div class="p-1 border-r border-gray-300">${row.district}</div>
+              <div class="p-1 border-r border-gray-300 truncate">${row.block}</div>
+              <div class="p-1 border-r border-gray-300 truncate">${row.school}</div>
+              <div class="p-1 border-r border-gray-300">₹${row.loanAmount}</div>
+              <div class="p-1 truncate">${row.requiredDocs}</div>
+            `;
+            
+            // Create collapsible content
+            const cardContent = document.createElement("div");
+            cardContent.id = `card-content-${index}`;
+            cardContent.className = "hidden bg-gray-50 p-2 text-xs border-t border-gray-200";
+            cardContent.innerHTML = `
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <p><span class="font-medium">Party:</span> ${row.party}</p>
+                  <p><span class="font-medium">District:</span> ${row.district}</p>
+                  <p><span class="font-medium">Block:</span> ${row.block}</p>
+                </div>
+                <div>
+                  <p><span class="font-medium">School:</span> ${row.school}</p>
+                  <p><span class="font-medium">Mobile:</span> ${row.mobile}</p>
+                  <p><span class="font-medium">Loan Date:</span> ${row.loanDate}</p>
+                </div>
+              </div>
+              <p class="mt-1"><span class="font-medium">Loan Amount:</span> ₹${row.loanAmount}</p>
+              <p class="mt-1"><span class="font-medium">Required Documents:</span> ${row.requiredDocs}</p>
+            `;
+            
+            // Add to card
+            card.appendChild(cardHeader);
+            card.appendChild(cardContent);
+            cardContainer.appendChild(card);
+          });
+          
+          container.appendChild(cardContainer);
+        })
+        .catch(err => console.error("Error fetching documents data:", err));
+    }
+
+    function toggleCard(id) {
+      const content = document.getElementById(id);
+      if (content.classList.contains('hidden')) {
+        // Close any other open cards
+        document.querySelectorAll('[id^="card-content-"]').forEach(el => {
+          if (el.id !== id) el.classList.add('hidden');
+        });
+        content.classList.remove('hidden');
+      } else {
+        content.classList.add('hidden');
+      }
     }
 
     function markAsDone(uid, button) {
@@ -128,7 +223,7 @@
       button.innerHTML = `<span class="loader"></span>`;
       button.disabled = true;
 
-      fetch("https://script.google.com/macros/s/AKfycbw-9IaSmAaTwnNq9P4An84Cd2DkZFqhQdGDNnORFCsXHhyyjRTmlNVj9pjYJNYJp0TpLQ/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbx9zxO_VUqc8ZEyArEXPZb5yOcBOyj120QvMY1a__MwBXkRB8580XANBoYFTQGYAGdF/exec", {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
@@ -167,19 +262,30 @@
   </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen py-6 px-4">
-  <div class="mt-12">
-    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">📦 Ye Stamps Office Me Bhejne Hain</h2>
-    <div class="overflow-x-auto">
-      <table id="stampsTable" class="min-w-full bg-white rounded-lg overflow-hidden shadow text-xs text-gray-700">
-      </table>
-    </div>
-  </div>
-
+<body class="bg-gray-100 min-h-screen py-4 px-2">
   <div class="max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📂 Vijay File List</h1>
+    <!-- Two tables side by side on desktop, stacked on mobile -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+      <!-- Stamps Table -->
+      <div class="bg-white rounded-lg shadow-sm p-2">
+        <h2 class="text-sm font-bold text-gray-800 mb-2 text-center">📦 Ye Stamps Office Me Bhejne Hain</h2>
+        <div class="overflow-x-auto">
+          <table id="stampsTable" class="min-w-full border-collapse text-xs">
+            <tr><td class="text-center py-2 text-xs text-gray-500">Loading...</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Documents Required -->
+      <div id="documentsContainer" class="overflow-hidden">
+        <div class="text-center py-2 text-xs text-gray-500">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Main File List -->
+    <h1 class="text-xl font-bold text-gray-800 mb-3 text-center">📂 Vijay File List</h1>
     <div id="cardContainer">
-      <p class="text-center text-gray-500">Loading data...</p>
+      <p class="text-center text-gray-500 text-sm">Loading data...</p>
     </div>
   </div>
 </body>
