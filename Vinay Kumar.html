@@ -84,7 +84,7 @@
     }
 
     function fetchDocumentsData() {
-      fetch("https://script.google.com/macros/s/AKfycbyGikJyQZyfvE8qCT83KvnmKZ3IxpCdUoW498miNi-rcKi3dntQIKZ1_V9O91rEvyma0w/exec?agent=Vinay%20Kumar")
+      fetch("https://script.google.com/macros/s/AKfycbwQuGrQ84jWVagYfRFBFIooBJDmisU1jlw4ekttv5n_7_LDR8BIbpYJ23QLDKrHwp63iA/exec?agent=Vinay%20Kumar")
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("documentsContainer");
@@ -129,6 +129,7 @@
               <div class="p-1 border-r border-gray-300 truncate">${row.block}</div>
               <div class="p-1 border-r border-gray-300 truncate">${row.school}</div>
               <div class="p-1 border-r border-gray-300">₹${row.loanAmount}</div>
+              <div class="p-1 border-r border-gray-300 truncate">${row.remarkDoc}</div>
               <div class="p-1 truncate">${row.requiredDocs}</div>
             `;
             
@@ -147,9 +148,11 @@
                   <p><span class="font-medium">School:</span> ${row.school}</p>
                   <p><span class="font-medium">Mobile:</span> ${row.mobile}</p>
                   <p><span class="font-medium">Loan Date:</span> ${row.loanDate}</p>
+                  <p><span class="font-medium">Loan Date:</span> ${row.loanAmount}</p>
                 </div>
               </div>
-              <p class="mt-1"><span class="font-medium">Loan Amount:</span> ₹${row.loanAmount}</p>
+              
+              <p class="mt-1"><span class="font-medium">Required Documents:</span> ${row.remarkDoc}</p>
               <p class="mt-1"><span class="font-medium">Required Documents:</span> ${row.requiredDocs}</p>
             `;
             
