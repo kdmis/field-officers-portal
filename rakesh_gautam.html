@@ -28,6 +28,8 @@
                     <p class="text-gray-700 font-semibold text-sm">Party: <span class="font-normal">${item.party}</span></p>
                     <p class="text-gray-700 font-semibold text-sm">Mobile: <span class="font-normal">${item.phone}</span></p>
                     <p class="text-gray-700 font-semibold text-sm">UID: <span class="font-normal">${item.uid}</span></p>
+		    <p class="text-gray-700 font-semibold text-sm">Remark:<span class="font-normal truncate-text" id="remark-text-${item.uid}">${item.custRemark.length > 100 ? item.custRemark.substring(0, 100) + "..." : item.custRemark}</span>${item.custRemark.length > 100 ? `<button class="text-blue-600 text-xs underline ml-1" onclick="toggleRemark('${item.uid}', \`${item.custRemark.replace(/`/g, "\\`")}\`)">Show more</button>` : ""}</p>
+
                   </div>
                   <div class="flex flex-wrap gap-2 sm:justify-end">
                     <button id="btn-${item.uid}" onclick="markAsDone('${item.uid}', this)"
@@ -37,10 +39,6 @@
                     <button onclick="updateRemark('${item.uid}', this)"
                       class="remark-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs font-medium transition-all">
                       Update Remark
-                    </button>
-                    <button onclick="cancelAction('${item.uid}', this)"
-                      class="cancel-btn bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-xs font-medium transition-all">
-                      Cancel
                     </button>
                   </div>
                 </div>
@@ -84,7 +82,7 @@
     }
 
     function fetchDocumentsData() {
-      fetch("https://script.google.com/macros/s/AKfycbyGikJyQZyfvE8qCT83KvnmKZ3IxpCdUoW498miNi-rcKi3dntQIKZ1_V9O91rEvyma0w/exec?agent=Rakesh%20Gautam")
+      fetch("https://script.google.com/macros/s/AKfycbwQuGrQ84jWVagYfRFBFIooBJDmisU1jlw4ekttv5n_7_LDR8BIbpYJ23QLDKrHwp63iA/exec?agent=Rakesh%20Gautam")
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("documentsContainer");
@@ -129,6 +127,7 @@
               <div class="p-1 border-r border-gray-300 truncate">${row.block}</div>
               <div class="p-1 border-r border-gray-300 truncate">${row.school}</div>
               <div class="p-1 border-r border-gray-300">₹${row.loanAmount}</div>
+              <div class="p-1 border-r border-gray-300 truncate">${row.remarkDoc}</div>
               <div class="p-1 truncate">${row.requiredDocs}</div>
             `;
             
@@ -147,9 +146,11 @@
                   <p><span class="font-medium">School:</span> ${row.school}</p>
                   <p><span class="font-medium">Mobile:</span> ${row.mobile}</p>
                   <p><span class="font-medium">Loan Date:</span> ${row.loanDate}</p>
+                  <p><span class="font-medium">Loan Amount:</span> ${row.loanAmount}</p>
                 </div>
               </div>
-              <p class="mt-1"><span class="font-medium">Loan Amount:</span> ₹${row.loanAmount}</p>
+              
+              <p class="mt-1"><span class="font-medium">Required Documents:</span> ${row.remarkDoc}</p>
               <p class="mt-1"><span class="font-medium">Required Documents:</span> ${row.requiredDocs}</p>
             `;
             
@@ -176,6 +177,19 @@
         content.classList.add('hidden');
       }
     }
+
+function toggleRemark(uid, fullText) {
+  const span = document.getElementById(`remark-text-${uid}`);
+  const button = span.nextElementSibling;
+  if (button.innerText === "Show more") {
+    span.innerText = fullText;
+    button.innerText = "Show less";
+  } else {
+    span.innerText = fullText.substring(0, 100) + "...";
+    button.innerText = "Show more";
+  }
+}
+
 
     function markAsDone(uid, button) {
       button.innerHTML = `<span class="loader"></span>`;
@@ -218,25 +232,6 @@
         setTimeout(() => confirmMessage.classList.add("hidden"), 2000);
       }, 2000);
     }
-
-    function cancelAction(uid, button) {
-      button.innerHTML = `<span class="loader"></span>`;
-      button.disabled = true;
-
-      fetch("https://script.google.com/macros/s/AKfycbznxX5ZpCedfhgGMHMHYgBygjQMerSnyAiUhQeGNE-SfGopbSqu9y-lBFpumP94VFQf9g/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: uid, action: "cancel" })
-      });
-
-      setTimeout(() => {
-        button.innerHTML = "✔ Cancelled";
-        button.classList.replace("bg-red-600", "bg-gray-400");
-        button.classList.add("cursor-not-allowed");
-        button.disabled = true;
-      }, 2000);
-    }
   </script>
 
   <style>
@@ -259,6 +254,12 @@
         transform: rotate(360deg);
       }
     }
+
+	.truncate-text {
+	display: inline;
+	word-break: break-word;
+}
+
   </style>
 </head>
 
